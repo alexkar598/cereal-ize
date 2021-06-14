@@ -253,6 +253,8 @@
             if(!isnull(key) && !istext(key) && !isnum(key))
                 if(islist(key))
                     if(!_JSON_isValidList(key)) return FALSE
+                else
+                    return FALSE
     return TRUE
 
 /datum/json/proc/Validate(check_types = TRUE, check_ID = TRUE, check_version = TRUE, check_nullable = TRUE, list/check_list = null, mode)
