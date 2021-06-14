@@ -63,6 +63,8 @@ JSON_DATA(datumid/subid, version)
 Migrations are defined using the `JSON_MIGRATION(datumid, version_from)` syntax
 
 ```dm
+#define JSON_ASSOC_SCAN_MODE 2
+
 JSON_DATA(example/migration, 2)
   JSON_NUMBER_FIELD(example_number, null, FALSE)
 
