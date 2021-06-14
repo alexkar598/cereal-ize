@@ -28,9 +28,9 @@
 /// this breaks on lists such as list("e" = null, "f" = null) and incorrectly reports it as non associative
 //#define JSON_ASSOC_SCAN_MODE 1
 ///100% realiable, uses json_encode to detect if its an associative list
-#define JSON_ASSOC_SCAN_MODE 2
+//#define JSON_ASSOC_SCAN_MODE 2
 
-#define JSON_TRUE_BOOLEANS
+//#define JSON_TRUE_BOOLEANS
 
 #define JSON_TYPED_FIELD(Name, Type, DefaultValue, Nullable) \
     var/static/list/JSON_TYPE_ANNOTATION_##Name = list(Type, Nullable, null)    ; \
