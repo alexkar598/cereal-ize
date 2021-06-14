@@ -7,11 +7,17 @@ All validation checks are done when serializing/deserializing. This may lead to 
 # Note on circular nesting
 Cereal-ize does not offer any safety against infinite loops, it is recommended to keep /world/var/loop_checks enabled and to be careful to not have circular nesting within nested datums
 
-# Dynamically created reserved variables and procs
+# Reserved variables and procs
 Name | Usage
 ---  | ---
+/var/list/type_info_assoc_list | Global variable used to store type information for all JSON datums
 /datum/json/var/JSON_TYPE_ANNOTATION_* | Used to store information about types of fields
 /datum/json/proc/JSON_Migrate_From_Version_* | Used in the versioning/migration system
+/datum/json/proc/Validate | Used to validate various checks
+/datum/json/proc/\_JSON_isValidList | Used to recursively validate simple lists
+/datum/json/proc/\_JSON_Deserialize_From_List | Used as an intermediary step in the deserialization process
+/datum/json/proc/\_JSON_Serialize_To_List |  Used as an intermediary step in the serialization process
+/datum/json/proc/\_is_List_Assoc | Used to check if a list is associative or not
 
 # Basic usage
 ```dm
