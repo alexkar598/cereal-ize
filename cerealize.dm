@@ -72,7 +72,6 @@
             if(!findtext(key, "JSON_TYPE_ANNOTATION_") == 1) continue
             var/stripped_key = copytext(key, 22)
             var/list/annotation = vars[key]
-            annotation[JSON_TYPE_ANNOTATION_SELFREF] = key
             type_info_assoc_list[JSON_ID][stripped_key] = annotation
     if(fileortext)
         Deserialize(fileortext)
@@ -145,13 +144,14 @@
     return intermediary
 
 /datum/json/proc/Serialize(check_types = TRUE, check_ID = TRUE, check_version = TRUE, check_nullable = TRUE, include_version = null, include_ID = null)
+    var/list/intermediary
 #ifdef JSON_TRUE_BOOLEANS
     var/true_token = "JSON_TRUE_TOKEN{[rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)]}"
     var/false_token = "JSON_FALSE_TOKEN{[rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)][rand(0,9)]}"
-    var/list/intermediary
     try
         intermediary = _JSON_Serialize_To_List(check_types, check_ID, check_version, check_nullable, include_version, include_ID, true_token, false_token)
 #else
+    try
         intermediary = _JSON_Serialize_To_List(check_types, check_ID, check_version, check_nullable, include_version, include_ID)
 #endif
     catch(var/exception/e)
@@ -226,14 +226,14 @@
 
 /datum/json/proc/Deserialize(json, check_types = TRUE, check_ID = TRUE, check_version = TRUE, check_nullable = TRUE, enable_migration = TRUE)
     . = FALSE
-    if(!isfile(json) && !istext(json)) 
+    if(!isfile(json) && !istext(json))
         JSON_validation_error = "Invalid input, expected a file or a string!"
         return
     if(isfile(json))
         json = file2text(json)
 
     var/ret
-    try 
+    try
         ret = _JSON_Deserialize_From_List(json_decode(json), check_types, check_ID, check_version, check_nullable, enable_migration)
     catch(var/exception/e)
         JSON_validation_error = e.name
@@ -266,7 +266,7 @@
     if(check_ID && check_list["JSON_ID"] != initial(JSON_ID))
         JSON_validation_error = "JSON_ID has been modified! Required: [initial(JSON_ID)] Current: [check_list["JSON_ID"]]"
         return
-    if(check_version && check_list["JSON_VERSION"] != initial(JSON_VERSION)) 
+    if(check_version && check_list["JSON_VERSION"] != initial(JSON_VERSION))
         JSON_validation_error = "JSON_VERSION does not match! Required: [initial(JSON_VERSION)] Current: [check_list["JSON_VERSION"]]"
         return
 
@@ -293,8 +293,8 @@
                         JSON_validation_error = "/datum/json/[JSON_ID]/var/[stripped_key] is not a boolean! Value: [value]"
                         return
                 if(JSON_TYPE_STRING)
-                    if(!istext(value)) 
-                        JSON_validation_error = "/datum/json/[JSON_ID]/var/[stripped_key] is not a string! Value: [value]"      
+                    if(!istext(value))
+                        JSON_validation_error = "/datum/json/[JSON_ID]/var/[stripped_key] is not a string! Value: [value]"
                         return
                 if(JSON_TYPE_LIST)
                     if(!islist(value))
@@ -345,6 +345,6 @@
         if(hascall(src, "JSON_Migrate_From_Version_[data["JSON_VERSION"]]"))
             call(src, "JSON_Migrate_From_Version_[data["JSON_VERSION"]]")(data)
             data["JSON_VERSION"]++
-        else 
+        else
             return
 
