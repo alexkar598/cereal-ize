@@ -1,5 +1,5 @@
 # Cereal-ize
-BYOND JSON serialization with versioning and type checking
+BYOND JSON (de)serialization with versioning and type checking
 
 # Note on type checking
 All validation checks are done when serializing/deserializing. This may lead to data corruption if you insert an invalid value and only later on try to serialize but fail and discard the data. 
