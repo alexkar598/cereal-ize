@@ -8,7 +8,7 @@ All validation checks are done when serializing/deserializing. This may lead to 
 Cereal-ize does not offer any safety against infinite loops, it is recommended to keep /world/var/loop_checks enabled and to be careful to not have circular nesting within nested datums
 
 # Other variables
-You can define variables without using JSON\_*\_FIELD() but it will not be included in the serialized output and it will not be deserialized from JSON, this is ideal for temporary values which you don't want to be saved. If you want to save a variable, you will have to use the JSON\_*\_FIELD() defines however.
+You can define variables without using JSON\_\*\_FIELD() but it will not be included in the serialized output and it will not be deserialized from JSON, this is ideal for temporary values which you don't want to be saved. If you want to save a variable, you will have to use the JSON\_\*\_FIELD() defines however.
 
 # Reserved variables and procs
 Name | Usage
