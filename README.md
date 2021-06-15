@@ -46,6 +46,8 @@ JSON_DATA(datumid/subid, version)
   JSON_NESTED_FIELD(name, nesteddatumid/nestedsubid, defaultvalue, nullable)
   //List of nested json datums, cannot contain any other value
   JSON_LIST_NESTED_FIELD(name, nesteddatumid/nestedsubid, defaultvalue, nullable)
+  //Associative list of nested json datums, cannot contain any other value. Keys must be strings
+  JSON_LIST_NESTED_FIELD(name, nesteddatumid/nestedsubid, defaultvalue, nullable)
 
 /world/New()
   . = ..()
@@ -96,6 +98,7 @@ JSON_STRING_FIELD(Name, DefaultValue, Nullable) | See JSON_NUMBER_FIELD | Create
 JSON_LIST_FIELD(Name, DefaultValue, Nullable) | See JSON_NUMBER_FIELD | Creates a list JSON field. Keys must be strings or numbers and values must be strings, numbers or null. Must be used in a JSON_DATA() block or in a definition for a /datum/json subtype
 JSON_NESTED_FIELD(Name, PartialPath, DefaultValue, Nullable) | <ul><li>PartialPath: must match the PartialPath of the nested JSON datum</li><li>See JSON_NUMBER_FIELD for other parameters</li></ul> | Creates a nested json datum field. Must be used in a JSON_DATA() block or in a definition for a /datum/json subtype.
 JSON_LIST_NESTED_FIELD(Name, PartialPath, DefaultValue, Nullable) | <ul><li>PartialPath: must match the PartialPath of the nested JSON datum</li><li>See JSON_NUMBER_FIELD for other parameters</li></ul> | Creates a list of nested json datums field. Must be used in a JSON_DATA() block or in a definition for a /datum/json subtype.
+JSON_ASSOC_LIST_NESTED_FIELD(Name, PartialPath, DefaultValue, Nullable) | <ul><li>PartialPath: must match the PartialPath of the nested JSON datum</li><li>See JSON_NUMBER_FIELD for other parameters</li></ul> | Creates an associative list of nested json datums field. Must be used in a JSON_DATA() block or in a definition for a /datum/json subtype.
 JSON_MIGRATION(PartialPath, Version) | <ul><li>PartialPath: Must match the PartialPath in JSON_DATA()</li><li>Version: Defines the version this migration applies to</li></ul> | This replaces the proc definition, indent and write your migration code. The raw list() will be passed as `data` (see the migration section for an example). This proc will be called automatically if the version of the deserialized json matches the version parameter. **IMPORTANT:** Validation and deserialization of nested datums is done **AFTER** migrations. `data` will contain 100% untrusted user input.
 /datum/json/var/JSON_ID | N/A | Matches the PartialPath in the JSON_DATA() definition.
 /datum/json/var/JSON_VERSION | N/A | Matches the Version in the JSON_DATA() definition.
