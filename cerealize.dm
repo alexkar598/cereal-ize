@@ -16,6 +16,7 @@
 #define JSON_TYPE_LIST    "list"
 #define JSON_TYPE_NESTED  "nested"
 #define JSON_TYPE_LIST_NESTED  "list-nested"
+#define JSON_TYPE_ASSOC_LIST_NESTED  "assoc-list-nested"
 
 #define JSON_VALIDATE_MODE_DESERIALIZE "deserialize"
 #define JSON_VALIDATE_MODE_SERIALIZE   "serialize"
@@ -46,6 +47,7 @@
 #define JSON_LIST_FIELD(Name, DefaultValue, Nullable) JSON_PREFIXED_TYPED_FIELD(Name, JSON_TYPE_LIST, DefaultValue, Nullable, list, list)
 #define JSON_NESTED_FIELD(Name, PartialPath, DefaultValue, Nullable) JSON_PREFIXED_TYPED_FIELD(Name, JSON_TYPE_NESTED, DefaultValue, Nullable, datum/json/##PartialPath, datum/json/##PartialPath)
 #define JSON_LIST_NESTED_FIELD(Name, PartialPath, DefaultValue, Nullable) JSON_PREFIXED_TYPED_FIELD(Name, JSON_TYPE_LIST_NESTED, DefaultValue, Nullable, datum/json/##PartialPath, list/datum/json/##PartialPath)
+#define JSON_ASSOC_LIST_NESTED_FIELD(Name, PartialPath, DefaultValue, Nullable) JSON_PREFIXED_TYPED_FIELD(Name, JSON_TYPE_ASSOC_LIST_NESTED, DefaultValue, Nullable, datum/json/##PartialPath, list/datum/json/##PartialPath)
 
 #define JSON_DATA(PartialPath, Version) \
 /datum/json/##PartialPath/JSON_VERSION = Version; \
@@ -133,6 +135,13 @@
                 var/list/datum/json/L = value
                 for(var/datum/json/listvalue in L)
                     output[++output.len] = listvalue._JSON_Serialize_To_List(arglist(args))
+            if(JSON_TYPE_ASSOC_LIST_NESTED)
+                var/list/output = list()
+                intermediary[stripped_key] = output
+                var/list/datum/json/L = value
+                for(var/key in L)
+                    var/datum/json/listvalue = L[key]
+                    output[key] = listvalue._JSON_Serialize_To_List(arglist(args))
             if(JSON_TYPE_NESTED)
                 var/datum/json/nested = vars[stripped_key]
                 intermediary[stripped_key] = nested._JSON_Serialize_To_List(arglist(args))
@@ -216,6 +225,18 @@
                         if(!inst._JSON_Deserialize_From_List(nested, check_types, check_ID, check_version, check_nullable, enable_migration))
                             throw EXCEPTION("{JSON [JSON_ID]} attempted to deserialize invalid JSON! Nested([stripped_key]) validation error: [inst.JSON_validation_error]")
                         nested_obj[i] = inst
+            if(JSON_TYPE_ASSOC_LIST_NESTED)
+                var/list/datum/json/nested_obj = decoded[stripped_key]
+                if(isnull(nested_obj))
+                    decoded[stripped_key] = null
+                else
+                    var/nested_type = info[JSON_TYPE_ANNOTATION_PREFIX]
+                    for(var/key in nested_obj)
+                        var/list/nested = nested_obj[key]
+                        var/datum/json/inst = new nested_type()
+                        if(!inst._JSON_Deserialize_From_List(nested, check_types, check_ID, check_version, check_nullable, enable_migration))
+                            throw EXCEPTION("{JSON [JSON_ID]} attempted to deserialize invalid JSON! Nested([stripped_key]) validation error: [inst.JSON_validation_error]")
+                        nested_obj[key] = inst
 
     JSON_VERSION = decoded["JSON_VERSION"]
     var/JSON_type_information = type_info_assoc_list[JSON_ID]
@@ -315,6 +336,29 @@
                                 return
                     else
                         for(var/listvalue in value)
+                            if(!islist(listvalue))
+                                JSON_validation_error = "/datum/json/[JSON_ID]/var/[stripped_key] contains a non list!"
+                                return
+                if(JSON_TYPE_ASSOC_LIST_NESTED)
+                    if(!islist(value))
+                        JSON_validation_error = "/datum/json/[JSON_ID]/var/[stripped_key] is not a list! Value: [value]"
+                        return
+                    if(mode == JSON_VALIDATE_MODE_SERIALIZE)
+                        var/type = info[JSON_TYPE_ANNOTATION_PREFIX]
+                        for(var/key in value)
+                            if(!istext(key))
+                                JSON_validation_error = "/datum/json/[JSON_ID]/var/[stripped_key] contains a non string as a key! Key: [key]"
+                                return
+                            var/listvalue = value[key]
+                            if(!istype(listvalue, type))
+                                JSON_validation_error = "/datum/json/[JSON_ID]/var/[stripped_key] contains a non [type]!"
+                                return
+                    else
+                        for(var/key in value)
+                            if(!istext(key))
+                                JSON_validation_error = "/datum/json/[JSON_ID]/var/[stripped_key] contains a non string as a key! Key: [key]"
+                                return
+                            var/listvalue = value[key]
                             if(!islist(listvalue))
                                 JSON_validation_error = "/datum/json/[JSON_ID]/var/[stripped_key] contains a non list!"
                                 return
