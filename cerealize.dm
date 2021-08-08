@@ -25,12 +25,6 @@
 #define JSON_TYPE_ANNOTATION_NULLABLE 2
 #define JSON_TYPE_ANNOTATION_PREFIX   3
 
-///Scans through the list and sees if all value lookups are null, if so, assumes its not associative,
-/// this breaks on lists such as list("e" = null, "f" = null) and incorrectly reports it as non associative
-//#define JSON_ASSOC_SCAN_MODE 1
-///100% realiable, uses json_encode to detect if its an associative list
-//#define JSON_ASSOC_SCAN_MODE 2
-
 //#define JSON_TRUE_BOOLEANS
 
 #define JSON_TYPED_FIELD(Name, Type, DefaultValue, Nullable) \
@@ -79,22 +73,7 @@
         Deserialize(fileortext)
 
 /datum/json/proc/_is_List_Assoc(list/L)
-#if (JSON_ASSOC_SCAN_MODE == 1)
-    var/index = 0
-    for(var/key in L)
-        index++
-        var/value = null
-        if(!isnum(key) || (!(isnum(key) && index != key) && L[key] != key))
-            value = L[key]
-        if(!isnull(value))
-            return TRUE
-    return FALSE
-#elif (JSON_ASSOC_SCAN_MODE == 2)
     return copytext(json_encode(L), 1, 2) == "{"
-#else
-#error JSON_ASSOC_SCAN_MODE is not a valid mode!
-#endif
-
 
 #ifdef JSON_TRUE_BOOLEANS
 /datum/json/proc/_JSON_Serialize_To_List(check_types = TRUE, check_ID = TRUE, check_version = TRUE, check_nullable = TRUE, _include_version = null, _include_ID = null, true_token = null, false_token = null)
