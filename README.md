@@ -24,11 +24,6 @@ Name | Usage
 
 # Basic usage
 ```dm
-//Mode for determining if a list is associative or not, experiment and see which performs better
-//Mode 1: Userland code, iterates through list and determines a list as being associative if all values associated to the looped keys are null. Prone to false positives for associative lists where all entries are equal to null
-//#define JSON_ASSOC_SCAN_MODE 1
-//Mode 2: json_encode(), uses json_encode() and checks if the first character is a [ or a {, 100% reliable but may or may not have a performance cost associated with encoding the entire list to check one character. Blame BYOND
-#define JSON_ASSOC_SCAN_MODE 2
 
 //This define will output boolean fields as false/true instead of 0/1
 #define JSON_TRUE_BOOLEANS
