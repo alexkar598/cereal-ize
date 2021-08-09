@@ -58,8 +58,6 @@
     var/JSON_validation_error
     var/JSON_include_version = TRUE
     var/JSON_include_ID = TRUE
-    //Deprecated, remove in 2.0.0
-    var/list/JSON_migrable_versions
     var/list/JSON_migratable_versions
 
 /datum/json/New(fileortext)
@@ -168,16 +166,13 @@
 
     var/wanted_JSON_VERSION = initial(JSON_VERSION)
     var/current_JSON_VERSION = decoded["JSON_VERSION"]
-    if(enable_migration)
-        if(JSON_migrable_versions?.len)
-            world.log << "Cerealize deprecation warning: JSON_migrable_versions will be removed in the next major version(2.0.0). Rename all usages to JSON_migratable_versions"
-        if(current_JSON_VERSION != wanted_JSON_VERSION)
-            if(JSON_migrable_versions?.Find(decoded["JSON_VERSION"]) || JSON_migratable_versions?.Find(decoded["JSON_VERSION"]) || hascall(src, "JSON_Migrate_From_Version_[decoded["JSON_VERSION"]]"))
-                Migrate(decoded)
-                if(check_version && decoded["JSON_VERSION"] != wanted_JSON_VERSION)
-                    throw EXCEPTION("{JSON [JSON_ID]} JSON migration from version [current_JSON_VERSION] has failed! Migrated version: [decoded["JSON_VERSION"]] Required version: [wanted_JSON_VERSION]")
-            else if(check_version)
-                throw EXCEPTION("{JSON [JSON_ID]} JSON_VERSION [current_JSON_VERSION] does not match JSON_VERSION [wanted_JSON_VERSION]")
+    if(enable_migration && current_JSON_VERSION != wanted_JSON_VERSION)
+        if( JSON_migratable_versions?.Find(decoded["JSON_VERSION"]) || hascall(src, "JSON_Migrate_From_Version_[decoded["JSON_VERSION"]]"))
+            Migrate(decoded)
+            if(check_version && decoded["JSON_VERSION"] != wanted_JSON_VERSION)
+                throw EXCEPTION("{JSON [JSON_ID]} JSON migration from version [current_JSON_VERSION] has failed! Migrated version: [decoded["JSON_VERSION"]] Required version: [wanted_JSON_VERSION]")
+        else if(check_version)
+            throw EXCEPTION("{JSON [JSON_ID]} JSON_VERSION [current_JSON_VERSION] does not match JSON_VERSION [wanted_JSON_VERSION]")
 
     if(!Validate(check_types, check_ID, check_version, check_nullable, decoded, JSON_VALIDATE_MODE_DESERIALIZE))
         throw EXCEPTION("{JSON [JSON_ID]} attempted to deserialize invalid JSON! Validation error: [JSON_validation_error]")
